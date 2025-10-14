@@ -159,7 +159,7 @@ HypergraphQL models use the GGML format with additional tensors for:
 - Hyperedge attention weights
 - Graph convolution weights
 
-## Phase 2 Enhancements (Current)
+## Phase 2 Enhancements
 
 - [x] Multi-relational hyperedge types
 - [x] Relation type embeddings
@@ -167,12 +167,104 @@ HypergraphQL models use the GGML format with additional tensors for:
 - [x] Relation-aware graph convolution
 - [x] Dynamic relation type support
 
-## Future Enhancements (Phase 3+)
+## Phase 3 Enhancements (Current)
 
-- [ ] Full support for dynamic hypergraph structures (runtime modification)
-- [ ] Integration with OpenCog AtomSpace
-- [ ] Temporal hypergraph evolution
-- [ ] Integration with SPARQL-like query languages
+- [x] OpenCog AtomSpace integration
+- [x] Temporal hypergraph evolution
+- [x] Dynamic hypergraph structures (runtime modification)
+- [x] Hierarchical relation types
+- [x] Context-based relation inference
+- [x] Bidirectional AtomSpace synchronization
+- [x] Time-aware embeddings and attention
+
+### OpenCog AtomSpace Integration
+
+Connect directly to OpenCog's AtomSpace:
+
+```python
+llm = AutoModelForCausalLM.from_pretrained(
+    "model.bin",
+    model_type="hypergraphql",
+    atomspace_uri="atomspace://localhost:5000"
+)
+
+# Query atoms
+result = llm.query_atoms(
+    pattern="(InheritanceLink ?x (ConceptNode 'Animal'))"
+)
+
+# Enable sync
+llm.enable_atomspace_sync(read=True, write=True)
+```
+
+### Temporal Reasoning
+
+Reason over time-varying knowledge:
+
+```python
+# Query historical state
+response = llm(
+    "What was the relationship in 1980?",
+    temporal_context={"year": 1980}
+)
+
+# Track evolution
+evolution = llm.track_evolution(
+    entity="AI",
+    time_range=("2010-01-01", "2025-01-01")
+)
+```
+
+### Dynamic Graph Modification
+
+Modify graph structure during inference:
+
+```python
+# Add nodes and edges
+llm.add_node("NewConcept", "ConceptNode", {"importance": 0.9})
+llm.add_edge("NewConcept", "Existing", "is-a", confidence=0.95)
+
+# Remove edges
+llm.remove_edge(edge_id="old_connection")
+```
+
+### Hierarchical Relations
+
+Organize relation types in hierarchies:
+
+```python
+llm.set_relation_hierarchy({
+    "Physical": {
+        "part-of": {"weight": 1.0},
+        "connected-to": {"weight": 0.8}
+    },
+    "Conceptual": {
+        "is-a": {"weight": 1.0},
+        "similar-to": {"weight": 0.7}
+    }
+})
+```
+
+### Relation Inference
+
+Automatically infer relation types:
+
+```python
+result = llm.infer_relation(
+    source="heart",
+    target="body",
+    context="The heart is in the body",
+    return_confidence=True
+)
+# Returns: {"relation": "part-of", "confidence": 0.89}
+```
+
+## Future Enhancements (Phase 4+)
+
+- [ ] SPARQL-like query language integration
+- [ ] CUDA/Metal acceleration for hypergraph operations
+- [ ] Large-scale graph optimization
+- [ ] Distributed inference support
 
 ## References
 

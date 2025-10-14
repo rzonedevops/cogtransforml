@@ -24,6 +24,20 @@ This directory contains comprehensive documentation for the OpenCog HypergraphQL
   - Usage examples with typed relationships
   - Performance considerations
 
+- **[PHASE3_ATOMSPACE.md](PHASE3_ATOMSPACE.md)** - Phase 3 implementation details
+  - OpenCog AtomSpace integration
+  - Temporal hypergraph evolution
+  - Dynamic graph structure modification
+  - Hierarchical relation types
+  - Context-based relation inference
+  - Advanced AGI features
+
+- **[PHASE3_VISUAL_GUIDE.md](PHASE3_VISUAL_GUIDE.md)** - Phase 3 visual architecture
+  - Component diagrams
+  - Data flow visualizations
+  - Memory layout
+  - Integration patterns
+
 ## Implementation Phases
 
 ### Phase 1 ✅ Complete
@@ -44,12 +58,15 @@ Multi-relational support with:
 
 **Documentation**: See [PHASE2_MULTI_RELATIONAL.md](PHASE2_MULTI_RELATIONAL.md)
 
-### Phase 3 🔜 Planned
+### Phase 3 ✅ Complete
 Advanced features:
 - OpenCog AtomSpace integration
 - Temporal hypergraph evolution
-- Dynamic graph structure modification
+- Dynamic graph structure modification at runtime
 - Hierarchical relation types
+- Context-based relation inference
+
+**Documentation**: See [PHASE3_ATOMSPACE.md](PHASE3_ATOMSPACE.md) and [PHASE3_VISUAL_GUIDE.md](PHASE3_VISUAL_GUIDE.md)
 
 ### Phase 4 🔜 Future
 Performance and scaling:
@@ -108,6 +125,9 @@ See [examples/hypergraphql_example.py](../examples/hypergraphql_example.py) for 
 | `n_hyperedge` | 4 | Max nodes per hyperedge | 1 |
 | `n_graph_layers` | 3 | Graph convolution layers | 1 |
 | `n_relation_types` | 16 | Number of relation types | 2 |
+| `n_temporal_steps` | 1000 | Temporal snapshots | 3 |
+| `n_hierarchy_levels` | 4 | Relation hierarchy depth | 3 |
+| `n_inference_dims` | 768 | Relation inference dimensions | 3 |
 
 ## Architecture Diagram
 
@@ -126,11 +146,19 @@ Hypergraph Attention
      ↓
 Relation-Aware Attention [Phase 2]
      ↓
+Temporal & Hierarchical Attention [Phase 3]
+     ↓
 Residual Connection
      ↓
 Graph Convolution
      ↓
 Relation-Aware Graph Convolution [Phase 2]
+     ↓
+Temporal Graph Convolution [Phase 3]
+     ↓
+Dynamic Graph Updates [Phase 3]
+     ↓
+Relation Inference [Phase 3]
      ↓
 Layer Normalization
      ↓
@@ -157,14 +185,27 @@ Output
 - ✅ Relation-aware convolution
 - ✅ Typed relationship processing
 
+### Phase 3 Features
+- ✅ OpenCog AtomSpace integration
+- ✅ Temporal hypergraph evolution
+- ✅ Dynamic graph modification
+- ✅ Hierarchical relation types
+- ✅ Context-based relation inference
+- ✅ Bidirectional AtomSpace sync
+- ✅ Time-aware embeddings
+
 ## Use Cases
 
 1. **Knowledge Graph Querying** - Query complex knowledge graphs using natural language
 2. **Relational Reasoning** - Perform multi-hop reasoning over typed relationships
 3. **Semantic Search** - Find semantically similar concepts in hypergraphs
 4. **Graph-to-Text Generation** - Generate natural language from graph structures
-5. **OpenCog Integration** - Interface with OpenCog's AtomSpace for AGI applications
+5. **OpenCog Integration** [Phase 3] - Direct interface with OpenCog's AtomSpace for AGI applications
 6. **Multi-Relational Reasoning** [Phase 2] - Reason over typed relationships (is-a, part-of, causes)
+7. **Temporal Reasoning** [Phase 3] - Track and reason about time-varying knowledge
+8. **Dynamic Graphs** [Phase 3] - Modify graph structure during inference
+9. **Hierarchical Relations** [Phase 3] - Multi-level relation type organization
+10. **Smart Inference** [Phase 3] - Automatically infer relation types from context
 
 ## Testing
 
@@ -177,6 +218,7 @@ pytest tests/test_hypergraphql.py
 # Run specific test class
 pytest tests/test_hypergraphql.py::TestHypergraphQL
 pytest tests/test_hypergraphql.py::TestHypergraphQLPhase2
+pytest tests/test_hypergraphql.py::TestHypergraphQLPhase3
 ```
 
 ## Examples
@@ -186,6 +228,9 @@ See the `examples/` directory for complete working examples:
 - **hypergraphql_example.py** - Comprehensive examples covering all features
   - Knowledge graph querying
   - Multi-relational queries (Phase 2)
+  - Temporal reasoning (Phase 3)
+  - Dynamic graph modification (Phase 3)
+  - AtomSpace integration (Phase 3)
   - Relational reasoning
   - Graph embeddings
   - Streaming generation
@@ -225,7 +270,15 @@ For questions, issues, or contributions related to HypergraphQL:
 
 ## Version History
 
-### v0.2.0 (Phase 2) - Current
+### v0.3.0 (Phase 3) - Current
+- OpenCog AtomSpace integration
+- Temporal hypergraph evolution
+- Dynamic graph modification
+- Hierarchical relation types
+- Context-based relation inference
+- Advanced AGI features
+
+### v0.2.0 (Phase 2)
 - Added multi-relational support
 - Relation type embeddings
 - Relation-aware attention and convolution
@@ -240,4 +293,4 @@ For questions, issues, or contributions related to HypergraphQL:
 ---
 
 **Last Updated**: October 2025  
-**Current Phase**: Phase 2 - Multi-Relational Support
+**Current Phase**: Phase 3 - OpenCog AtomSpace Integration

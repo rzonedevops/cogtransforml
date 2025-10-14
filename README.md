@@ -33,21 +33,45 @@ Python bindings for the Transformer models implemented in C/C++ using [GGML](htt
 
 **HypergraphQL** is a novel transformer architecture for processing and querying knowledge graphs represented as hypergraphs. It extends traditional transformers with hypergraph-aware attention mechanisms for advanced reasoning over complex relational structures.
 
-**Phase 2 Features (Current):**
+**Phase 3 Features (Current):**
+- ✅ OpenCog AtomSpace integration
+- ✅ Temporal hypergraph evolution and time-aware reasoning
+- ✅ Dynamic graph structure modification at runtime
+- ✅ Hierarchical relation types with inheritance
+- ✅ Context-based relation inference (automatic type detection)
+- ✅ Bidirectional AtomSpace synchronization
+
+**Phase 2 Features:**
 - ✅ Multi-relational support with 16 configurable relation types
 - ✅ Relation-aware attention and graph convolution
 - ✅ Typed relationships (is-a, part-of, causes, etc.)
 - ✅ Multi-hop reasoning over knowledge graphs
 
-**Documentation:** See [docs/HYPERGRAPHQL.md](docs/HYPERGRAPHQL.md) and [docs/PHASE2_MULTI_RELATIONAL.md](docs/PHASE2_MULTI_RELATIONAL.md)
+**Documentation:** 
+- [docs/HYPERGRAPHQL.md](docs/HYPERGRAPHQL.md) - Main technical documentation
+- [docs/PHASE3_ATOMSPACE.md](docs/PHASE3_ATOMSPACE.md) - Phase 3: AtomSpace integration
+- [docs/PHASE2_MULTI_RELATIONAL.md](docs/PHASE2_MULTI_RELATIONAL.md) - Phase 2: Multi-relational support
 
 **Example:**
 ```python
+# Basic usage
 llm = AutoModelForCausalLM.from_pretrained(
     "path/to/hypergraphql-model.bin",
     model_type="hypergraphql"
 )
 response = llm("Using 'is-a' relations: What is the relationship between neurons and the brain?")
+
+# Phase 3: AtomSpace integration and temporal reasoning
+llm = AutoModelForCausalLM.from_pretrained(
+    "path/to/hypergraphql-phase3.bin",
+    model_type="hypergraphql",
+    atomspace_uri="atomspace://localhost:5000",
+    enable_temporal=True
+)
+response = llm(
+    "What was the relationship between USSR and Russia in 1980?",
+    temporal_context={"year": 1980}
+)
 ```
 
 ## Installation
