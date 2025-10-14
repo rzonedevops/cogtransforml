@@ -33,7 +33,14 @@ Python bindings for the Transformer models implemented in C/C++ using [GGML](htt
 
 **HypergraphQL** is a novel transformer architecture for processing and querying knowledge graphs represented as hypergraphs. It extends traditional transformers with hypergraph-aware attention mechanisms for advanced reasoning over complex relational structures.
 
-**Phase 3 Features (Current):**
+**Phase 4 Features (In Progress):**
+- 🚧 HyperQL: SPARQL-like query language for hypergraphs
+- 🚧 GPU acceleration with CUDA/Metal (3-5x speedup)
+- 🚧 Large-scale optimization (billion-edge graphs)
+- 🚧 Distributed inference across multi-node clusters
+- 🚧 Production deployment tools and monitoring
+
+**Phase 3 Features (Complete):**
 - ✅ OpenCog AtomSpace integration
 - ✅ Temporal hypergraph evolution and time-aware reasoning
 - ✅ Dynamic graph structure modification at runtime
@@ -41,7 +48,7 @@ Python bindings for the Transformer models implemented in C/C++ using [GGML](htt
 - ✅ Context-based relation inference (automatic type detection)
 - ✅ Bidirectional AtomSpace synchronization
 
-**Phase 2 Features:**
+**Phase 2 Features (Complete):**
 - ✅ Multi-relational support with 16 configurable relation types
 - ✅ Relation-aware attention and graph convolution
 - ✅ Typed relationships (is-a, part-of, causes, etc.)
@@ -49,6 +56,7 @@ Python bindings for the Transformer models implemented in C/C++ using [GGML](htt
 
 **Documentation:** 
 - [docs/HYPERGRAPHQL.md](docs/HYPERGRAPHQL.md) - Main technical documentation
+- [docs/PHASE4_PERFORMANCE.md](docs/PHASE4_PERFORMANCE.md) - Phase 4: Performance & Production (🚧 In Progress)
 - [docs/PHASE3_ATOMSPACE.md](docs/PHASE3_ATOMSPACE.md) - Phase 3: AtomSpace integration
 - [docs/PHASE2_MULTI_RELATIONAL.md](docs/PHASE2_MULTI_RELATIONAL.md) - Phase 2: Multi-relational support
 

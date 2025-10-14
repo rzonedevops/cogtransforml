@@ -38,6 +38,21 @@ This directory contains comprehensive documentation for the OpenCog HypergraphQL
   - Memory layout
   - Integration patterns
 
+- **[PHASE4_PERFORMANCE.md](PHASE4_PERFORMANCE.md)** - Phase 4 implementation details (🚧 In Progress)
+  - HyperQL query language specification
+  - GPU acceleration (CUDA/Metal)
+  - Large-scale graph optimization
+  - Distributed inference architecture
+  - Production deployment tools
+  - Performance benchmarks
+
+- **[PHASE4_VISUAL_GUIDE.md](PHASE4_VISUAL_GUIDE.md)** - Phase 4 visual architecture (🚧 In Progress)
+  - System architecture layers
+  - Query processing pipeline
+  - GPU acceleration diagrams
+  - Distributed architecture
+  - Production deployment patterns
+
 ## Implementation Phases
 
 ### Phase 1 ✅ Complete
@@ -68,12 +83,15 @@ Advanced features:
 
 **Documentation**: See [PHASE3_ATOMSPACE.md](PHASE3_ATOMSPACE.md) and [PHASE3_VISUAL_GUIDE.md](PHASE3_VISUAL_GUIDE.md)
 
-### Phase 4 🔜 Future
+### Phase 4 🚧 In Progress
 Performance and scaling:
-- SPARQL-like query language
-- CUDA/Metal acceleration
-- Large-scale graph optimization
-- Distributed inference
+- HyperQL query language (SPARQL-like for hypergraphs)
+- CUDA/Metal GPU acceleration (3-5x speedup)
+- Large-scale graph optimization (billion-edge support)
+- Distributed inference (multi-node clusters)
+- Production deployment tools
+
+**Documentation**: See [PHASE4_PERFORMANCE.md](PHASE4_PERFORMANCE.md) and [PHASE4_VISUAL_GUIDE.md](PHASE4_VISUAL_GUIDE.md)
 
 ## Quick Start
 

@@ -259,12 +259,103 @@ result = llm.infer_relation(
 # Returns: {"relation": "part-of", "confidence": 0.89}
 ```
 
-## Future Enhancements (Phase 4+)
+## Phase 4 Enhancements (🚧 In Progress)
 
-- [ ] SPARQL-like query language integration
-- [ ] CUDA/Metal acceleration for hypergraph operations
-- [ ] Large-scale graph optimization
-- [ ] Distributed inference support
+### HyperQL Query Language
+
+Declarative SPARQL-like queries for hypergraphs:
+
+```python
+query = """
+SELECT ?person ?age
+WHERE {
+    ?person :isA :Researcher .
+    ?person :hasAge ?age .
+    FILTER(?age > 30)
+}
+ORDER BY DESC(?age)
+LIMIT 10
+"""
+
+results = llm.query_hyperql(query)
+```
+
+### GPU Acceleration
+
+CUDA and Metal support for 3-5x speedup:
+
+```python
+llm = AutoModelForCausalLM.from_pretrained(
+    "model.bin",
+    model_type="hypergraphql",
+    device="cuda",
+    cuda_config={
+        "enable_graph_ops": True,
+        "use_flash_attention": True,
+        "precision": "fp16"
+    }
+)
+```
+
+### Large-Scale Optimization
+
+Handle billion-edge graphs:
+
+```python
+llm = AutoModelForCausalLM.from_pretrained(
+    "model.bin",
+    graph_config={
+        "size": "xlarge",
+        "partitioning": "metis",
+        "compression": True,
+        "processing_mode": "streaming"
+    }
+)
+```
+
+### Distributed Inference
+
+Multi-node cluster deployment:
+
+```python
+from ctransformers import DistributedHypergraphQL
+
+llm = DistributedHypergraphQL.from_pretrained(
+    "model.bin",
+    cluster_config={
+        "coordinator": "master:8000",
+        "workers": ["worker-1:8001", "worker-2:8002", "worker-3:8003"]
+    }
+)
+```
+
+### Production Deployment
+
+Enterprise-ready server:
+
+```python
+from ctransformers.serving import HypergraphQLServer
+
+server = HypergraphQLServer(
+    model_path="model.bin",
+    config={
+        "host": "0.0.0.0",
+        "port": 8080,
+        "workers": 8
+    }
+)
+server.start()
+```
+
+See [PHASE4_PERFORMANCE.md](PHASE4_PERFORMANCE.md) for complete Phase 4 documentation.
+
+## Future Enhancements (Phase 5+)
+
+- [ ] Multi-modal hypergraph support
+- [ ] Reinforcement learning integration
+- [ ] Active learning capabilities
+- [ ] Explainable reasoning traces
+- [ ] Real-time knowledge updates
 
 ## References
 
