@@ -51,7 +51,7 @@ llm = AutoModelForCausalLM.from_pretrained(
 # Generate text
 print(llm("Query: What is OpenCog?"))
 
-# Get embeddings
+# Get embeddings (requires model implementation of Embeddings() method)
 embeddings = llm.embed("OpenCog is a framework for AGI")
 ```
 
