@@ -27,15 +27,18 @@ The HypergraphQL model is a transformer-based architecture designed for processi
 - `n_layer`: Number of transformer layers (default: 12)
 - `n_hyperedge`: Maximum nodes per hyperedge (default: 4)
 - `n_graph_layers`: Number of graph convolution layers (default: 3)
+- `n_relation_types`: Number of relation types for multi-relational support (default: 16) *[Phase 2]*
 
 ### Layer Architecture
 
 Each layer consists of:
 1. Layer normalization
 2. Hypergraph-aware multi-head attention
-3. Graph convolution operation
-4. Feed-forward network
-5. Residual connections
+3. Relation-aware attention *[Phase 2]*
+4. Graph convolution operation
+5. Relation-aware graph convolution *[Phase 2]*
+6. Feed-forward network
+7. Residual connections
 
 ## Usage
 
@@ -96,6 +99,50 @@ h_v^(l+1) = σ(W^(l) * AGG({h_u^(l) : u ∈ N(v)}))
 
 Where `N(v)` is the neighborhood of node `v` in the hypergraph.
 
+### Phase 2: Multi-Relational Support
+
+The Phase 2 enhancements add support for typed relationships in hypergraphs:
+
+#### Relation Type Embeddings
+
+Each relation type (e.g., "is-a", "part-of", "causes") has a learned embedding:
+
+```
+R_emb: {relation_type_id} → ℝ^d
+```
+
+#### Relation-Aware Attention
+
+The attention mechanism is extended to consider relation types:
+
+```
+RelationAttention(Q, K, V, R) = W_r(R) ⊙ Attention(Q, K, V)
+```
+
+Where `W_r(R)` is a relation-specific weighting computed from relation embeddings.
+
+#### Relation-Aware Graph Convolution
+
+Message passing considers relation types:
+
+```
+h_v^(l+1) = σ(W_r(R) ⊙ W^(l) * AGG({h_u^(l) : u ∈ N_r(v)}))
+```
+
+Where `N_r(v)` is the neighborhood of `v` connected by relation type `r`.
+
+#### Common Relation Types
+
+The model supports configurable relation types, commonly including:
+- **is-a**: Taxonomic relationships (inheritance)
+- **part-of**: Compositional relationships (meronymy)
+- **causes**: Causal relationships
+- **located-at**: Spatial relationships
+- **temporal**: Temporal relationships
+- **similar-to**: Similarity relationships
+- **opposite-of**: Antonym relationships
+- **custom**: User-defined relation types
+
 ## Training
 
 To train a HypergraphQL model:
@@ -112,11 +159,18 @@ HypergraphQL models use the GGML format with additional tensors for:
 - Hyperedge attention weights
 - Graph convolution weights
 
-## Future Enhancements
+## Phase 2 Enhancements (Current)
 
-- [ ] Support for dynamic hypergraph structures
+- [x] Multi-relational hyperedge types
+- [x] Relation type embeddings
+- [x] Relation-aware attention mechanism
+- [x] Relation-aware graph convolution
+- [x] Dynamic relation type support
+
+## Future Enhancements (Phase 3+)
+
+- [ ] Full support for dynamic hypergraph structures (runtime modification)
 - [ ] Integration with OpenCog AtomSpace
-- [ ] Multi-relational hyperedge types
 - [ ] Temporal hypergraph evolution
 - [ ] Integration with SPARQL-like query languages
 
