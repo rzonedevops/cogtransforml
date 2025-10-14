@@ -16,17 +16,18 @@ Python bindings for the Transformer models implemented in C/C++ using [GGML](htt
 
 ## Supported Models
 
-| Models              | Model Type    | CUDA | Metal |
-| :------------------ | ------------- | :--: | :---: |
-| GPT-2               | `gpt2`        |      |       |
-| GPT-J, GPT4All-J    | `gptj`        |      |       |
-| GPT-NeoX, StableLM  | `gpt_neox`    |      |       |
-| Falcon              | `falcon`      |  ✅  |       |
-| LLaMA, LLaMA 2      | `llama`       |  ✅  |  ✅   |
-| MPT                 | `mpt`         |  ✅  |       |
-| StarCoder, StarChat | `gpt_bigcode` |  ✅  |       |
-| Dolly V2            | `dolly-v2`    |      |       |
-| Replit              | `replit`      |      |       |
+| Models              | Model Type       | CUDA | Metal |
+| :------------------ | ---------------- | :--: | :---: |
+| GPT-2               | `gpt2`           |      |       |
+| GPT-J, GPT4All-J    | `gptj`           |      |       |
+| GPT-NeoX, StableLM  | `gpt_neox`       |      |       |
+| Falcon              | `falcon`         |  ✅  |       |
+| LLaMA, LLaMA 2      | `llama`          |  ✅  |  ✅   |
+| MPT                 | `mpt`            |  ✅  |       |
+| StarCoder, StarChat | `gpt_bigcode`    |  ✅  |       |
+| Dolly V2            | `dolly-v2`       |      |       |
+| Replit              | `replit`         |      |       |
+| HypergraphQL        | `hypergraphql`   |      |       |
 
 ## Installation
 
