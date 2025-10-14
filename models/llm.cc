@@ -8,6 +8,7 @@
 #include "llms/mpt.cc"
 #include "llms/replit.cc"
 #include "llms/starcoder.cc"
+#include "llms/hypergraphql.cc"
 
 // Old ggml file format.
 #include "llms/llama-ggml.cc"
@@ -54,6 +55,8 @@ LLM* ctransformers_llm_create(const char* model_path, const char* model_type,
     llm = new gptj_llm;
   } else if (type == "gptneox") {
     llm = new gpt_neox_llm;
+  } else if (type == "hypergraphql") {
+    llm = new hypergraphql_llm;
   } else if (type == "llama") {
     llm = new llama_ggml::llama_llm;
   } else if (type == "mpt") {
