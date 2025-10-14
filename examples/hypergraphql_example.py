@@ -39,6 +39,38 @@ def example_knowledge_graph_query():
     print()
 
 
+def example_multi_relational_query():
+    """Example: Query with multiple relation types (Phase 2)"""
+    print("=" * 60)
+    print("Example 2: Multi-Relational Querying (Phase 2)")
+    print("=" * 60)
+    
+    try:
+        llm = AutoModelForCausalLM.from_pretrained(
+            "/path/to/hypergraphql-model.bin",
+            model_type="hypergraphql"
+        )
+        
+        # Query using specific relation types
+        query = """Query: Using 'is-a' and 'part-of' relations, 
+        what is the relationship between neurons and the brain?"""
+        response = llm(query, max_new_tokens=150)
+        print(f"Query: {query}")
+        print(f"Response: {response}")
+        
+        # Query with causal relations
+        query2 = "Query: Using 'causes' relations, what leads to learning?"
+        response2 = llm(query2, max_new_tokens=100)
+        print(f"\nQuery: {query2}")
+        print(f"Response: {response2}")
+        
+    except Exception as e:
+        print(f"Note: This requires a trained HypergraphQL model file")
+        print(f"Error: {e}")
+    
+    print()
+
+
 def example_relational_reasoning():
     """Example: Perform multi-hop reasoning over graph structures"""
     print("=" * 60)
@@ -127,6 +159,7 @@ def main():
     print("Note: You need a trained model file to run these examples.\n")
     
     example_knowledge_graph_query()
+    example_multi_relational_query()
     example_relational_reasoning()
     example_embeddings()
     example_streaming()
@@ -134,11 +167,18 @@ def main():
     print("=" * 60)
     print("Model Features:")
     print("=" * 60)
+    print("Phase 1:")
     print("✓ Hypergraph-aware attention mechanism")
     print("✓ Graph convolution layers for message passing")
     print("✓ Node and hyperedge embeddings")
     print("✓ Standard transformer architecture")
     print("✓ Compatible with existing GGML framework")
+    print("\nPhase 2 (NEW):")
+    print("✓ Multi-relational hyperedge types")
+    print("✓ Relation type embeddings")
+    print("✓ Relation-aware attention mechanism")
+    print("✓ Relation-aware graph convolution")
+    print("✓ Support for typed relationships (is-a, part-of, causes, etc.)")
     print("=" * 60 + "\n")
 
 

@@ -13,6 +13,7 @@ struct hypergraphql_hparams {
   int32_t n_layer = 12;         // number of transformer layers
   int32_t n_hyperedge = 4;      // max nodes per hyperedge
   int32_t n_graph_layers = 3;   // number of graph convolution layers
+  int32_t n_relation_types = 16; // number of relation types (Phase 2)
   int32_t ftype = GGML_FTYPE_MOSTLY_F16;
 };
 
@@ -32,6 +33,12 @@ struct hypergraphql_layer {
   // Graph convolution weights
   struct ggml_tensor *graph_conv_w;
   struct ggml_tensor *graph_conv_b;
+  
+  // Phase 2: Multi-relational support
+  struct ggml_tensor *relation_attn_w;   // relation-aware attention weights
+  struct ggml_tensor *relation_attn_b;   // relation-aware attention bias
+  struct ggml_tensor *relation_conv_w;   // relation-specific graph convolution
+  struct ggml_tensor *relation_conv_b;   // relation-specific graph convolution bias
 
   // Layer normalization
   struct ggml_tensor *ln_1_g;
@@ -57,6 +64,9 @@ struct hypergraphql_model {
   // Hypergraph structure embeddings
   struct ggml_tensor *hypergraph_node_emb;
   struct ggml_tensor *hypergraph_edge_emb;
+  
+  // Phase 2: Relation type embeddings
+  struct ggml_tensor *relation_type_emb;  // embeddings for relation types
 
   // Transformer layers
   std::vector<hypergraphql_layer> layers;
@@ -97,6 +107,7 @@ bool hypergraphql_model_load(const std::string &fname,
   fin.read((char *)&hparams.n_layer, sizeof(hparams.n_layer));
   fin.read((char *)&hparams.n_hyperedge, sizeof(hparams.n_hyperedge));
   fin.read((char *)&hparams.n_graph_layers, sizeof(hparams.n_graph_layers));
+  fin.read((char *)&hparams.n_relation_types, sizeof(hparams.n_relation_types));
   fin.read((char *)&hparams.ftype, sizeof(hparams.ftype));
 
   const int32_t qntvr = hparams.ftype / GGML_QNT_VERSION_FACTOR;
@@ -164,9 +175,14 @@ bool hypergraphql_model_load(const std::string &fname,
       model.ctx, GGML_TYPE_F32, hparams.n_embd, hparams.n_vocab);
   model.hypergraph_edge_emb = ggml_new_tensor_2d(
       model.ctx, GGML_TYPE_F32, hparams.n_embd, hparams.n_hyperedge);
+  
+  // Phase 2: Relation type embeddings
+  model.relation_type_emb = ggml_new_tensor_2d(
+      model.ctx, GGML_TYPE_F32, hparams.n_embd, hparams.n_relation_types);
 
   model.tensors["model/wte"] = model.wte;
   model.tensors["model/wpe"] = model.wpe;
+  model.tensors["model/relation_type_emb"] = model.relation_type_emb;
 
   // Initialize layers
   model.layers.resize(hparams.n_layer);
@@ -203,6 +219,16 @@ bool hypergraphql_model_load(const std::string &fname,
                                             hparams.n_embd, hparams.n_embd);
     layer.graph_conv_b =
         ggml_new_tensor_1d(model.ctx, GGML_TYPE_F32, hparams.n_embd);
+    
+    // Phase 2: Multi-relational attention and convolution weights
+    layer.relation_attn_w = ggml_new_tensor_2d(model.ctx, GGML_TYPE_F32,
+                                               hparams.n_embd, hparams.n_embd);
+    layer.relation_attn_b =
+        ggml_new_tensor_1d(model.ctx, GGML_TYPE_F32, hparams.n_embd);
+    layer.relation_conv_w = ggml_new_tensor_2d(model.ctx, GGML_TYPE_F32,
+                                               hparams.n_embd, hparams.n_embd);
+    layer.relation_conv_b =
+        ggml_new_tensor_1d(model.ctx, GGML_TYPE_F32, hparams.n_embd);
 
     layer.c_mlp_fc_w = ggml_new_tensor_2d(model.ctx, GGML_TYPE_F32,
                                           hparams.n_embd, 4 * hparams.n_embd);
@@ -238,11 +264,40 @@ ggml_tensor *hypergraph_attention(const hypergraphql_layer &layer,
   return cur;
 }
 
+// Phase 2: Relation-aware attention mechanism
+ggml_tensor *relation_aware_attention(const hypergraphql_layer &layer,
+                                     ggml_context *ctx0, ggml_tensor *inp,
+                                     ggml_tensor *relation_emb) {
+  // Combine input with relation embeddings for type-aware attention
+  struct ggml_tensor *rel_weighted = ggml_mul_mat(ctx0, layer.relation_attn_w, relation_emb);
+  rel_weighted = ggml_add(ctx0, ggml_repeat(ctx0, layer.relation_attn_b, rel_weighted), rel_weighted);
+  
+  // Apply relation-weighted attention to input
+  struct ggml_tensor *cur = ggml_mul(ctx0, inp, rel_weighted);
+  return cur;
+}
+
 // Graph convolution layer
 ggml_tensor *graph_convolution(const hypergraphql_layer &layer,
                               ggml_context *ctx0, ggml_tensor *inp) {
   // Apply graph convolution for message passing
   struct ggml_tensor *cur = ggml_mul_mat(ctx0, layer.graph_conv_w, inp);
+  cur = ggml_add(ctx0, ggml_repeat(ctx0, layer.graph_conv_b, cur), cur);
+  return cur;
+}
+
+// Phase 2: Relation-aware graph convolution
+ggml_tensor *relation_graph_convolution(const hypergraphql_layer &layer,
+                                       ggml_context *ctx0, ggml_tensor *inp,
+                                       ggml_tensor *relation_emb) {
+  // Apply relation-specific graph convolution
+  // This allows different relation types to have different message passing behavior
+  struct ggml_tensor *rel_weighted = ggml_mul_mat(ctx0, layer.relation_conv_w, relation_emb);
+  rel_weighted = ggml_add(ctx0, ggml_repeat(ctx0, layer.relation_conv_b, rel_weighted), rel_weighted);
+  
+  // Combine standard graph convolution with relation-specific weighting
+  struct ggml_tensor *base_conv = ggml_mul_mat(ctx0, layer.graph_conv_w, inp);
+  struct ggml_tensor *cur = ggml_mul(ctx0, base_conv, rel_weighted);
   cur = ggml_add(ctx0, ggml_repeat(ctx0, layer.graph_conv_b, cur), cur);
   return cur;
 }
@@ -307,6 +362,15 @@ bool hypergraphql_eval(const hypergraphql_model &model, const int n_threads,
     ((int32_t *)position->data)[i] = n_past + i;
   }
   inpL = ggml_add(ctx0, inpL, ggml_get_rows(ctx0, model.wpe, position));
+  
+  // Phase 2: Initialize relation type embeddings for processing
+  // In a real implementation, these would be extracted from input or learned dynamically
+  struct ggml_tensor *relation_indices = ggml_new_tensor_1d(ctx0, GGML_TYPE_I32, N);
+  for (int i = 0; i < N; ++i) {
+    // Default to relation type 0 (can be customized based on input)
+    ((int32_t *)relation_indices->data)[i] = 0;
+  }
+  struct ggml_tensor *relation_emb = ggml_get_rows(ctx0, model.relation_type_emb, relation_indices);
 
   // Process through transformer layers with hypergraph attention
   for (int il = 0; il < n_layer; ++il) {
@@ -350,9 +414,17 @@ bool hypergraphql_eval(const hypergraphql_model &model, const int n_threads,
     // Add residual connection
     struct ggml_tensor *inpFF = ggml_add(ctx0, cur, inpL);
 
-    // Apply graph convolution
+    // Apply graph convolution with relation awareness (Phase 2)
     {
+      // Use standard graph convolution as base
       cur = graph_convolution(model.layers[il], ctx0, inpFF);
+      
+      // Add relation-aware graph convolution for multi-relational support
+      struct ggml_tensor *rel_conv = relation_graph_convolution(
+          model.layers[il], ctx0, inpFF, relation_emb);
+      
+      // Combine both convolution results
+      cur = ggml_add(ctx0, cur, rel_conv);
     }
 
     // Layer normalization

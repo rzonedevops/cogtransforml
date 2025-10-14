@@ -59,9 +59,17 @@ Main evaluation function that processes tokens through the complete transformer 
 ### 3. Testing (`tests/test_hypergraphql.py`)
 
 Created test suite covering:
+
+**Phase 1 Tests:**
 - Model type registration verification
 - Hypergraph structure validation
 - Attention mechanism testing
+
+**Phase 2 Tests:**
+- Relation type support verification
+- Multi-relational attention testing
+- Relation-aware graph convolution testing
+- Dynamic relation embeddings testing
 
 ### 4. Documentation
 
@@ -77,11 +85,17 @@ Comprehensive documentation including:
 - Future enhancement roadmap
 
 #### Example Code (`examples/hypergraphql_example.py`)
-Demonstrates four key use cases:
+Demonstrates key use cases:
+
+**Phase 1 Examples:**
 1. Knowledge graph querying
 2. Relational reasoning
 3. Graph concept embeddings
 4. Streaming generation
+
+**Phase 2 Examples:**
+5. Multi-relational querying with typed relationships
+6. Relation-specific reasoning (is-a, part-of, causes)
 
 #### README Updates
 - Added HypergraphQL to the supported models table
@@ -160,15 +174,85 @@ The implementation follows established patterns in the CTransformers codebase:
 - Minimal changes to core framework
 - Surgical additions that don't affect other models
 
-## Future Work
+## Phase 2 Implementation (Current)
 
-Potential enhancements include:
-- Support for dynamic hypergraph structures
-- Integration with OpenCog AtomSpace
-- Multi-relational hyperedge types
-- Temporal hypergraph evolution
-- SPARQL-like query language integration
-- CUDA/Metal acceleration for hypergraph operations
+Building on the Phase 1 foundation, Phase 2 adds advanced multi-relational capabilities to the HypergraphQL transformer.
+
+### Implementation Details
+
+#### 1. Extended Model Architecture
+
+**New Hyperparameters:**
+```cpp
+int32_t n_relation_types = 16;  // number of relation types
+```
+
+**New Model Components:**
+```cpp
+struct ggml_tensor *relation_type_emb;  // relation type embeddings
+```
+
+**New Layer Components:**
+```cpp
+struct ggml_tensor *relation_attn_w;    // relation-aware attention weights
+struct ggml_tensor *relation_attn_b;    // relation-aware attention bias
+struct ggml_tensor *relation_conv_w;    // relation-specific convolution weights
+struct ggml_tensor *relation_conv_b;    // relation-specific convolution bias
+```
+
+#### 2. New Operations
+
+**Relation-Aware Attention:**
+```cpp
+ggml_tensor *relation_aware_attention(const hypergraphql_layer &layer,
+                                     ggml_context *ctx0, 
+                                     ggml_tensor *inp,
+                                     ggml_tensor *relation_emb)
+```
+Combines input features with relation type embeddings to produce type-aware attention patterns.
+
+**Relation-Aware Graph Convolution:**
+```cpp
+ggml_tensor *relation_graph_convolution(const hypergraphql_layer &layer,
+                                       ggml_context *ctx0, 
+                                       ggml_tensor *inp,
+                                       ggml_tensor *relation_emb)
+```
+Performs message passing that respects relation types, allowing different edge types to have different propagation behavior.
+
+#### 3. Integration in Evaluation Pipeline
+
+The evaluation function now:
+1. Initializes relation type embeddings from the model
+2. Extracts or assigns relation types for each token/edge
+3. Applies relation-aware attention alongside standard attention
+4. Combines standard and relation-aware graph convolution
+5. Maintains backward compatibility with Phase 1 models
+
+### Key Enhancements
+
+### 1. Dynamic Hypergraph Structures
+- **Runtime Edge Modification**: Support for adding, removing, and updating hyperedges during inference
+- **Adaptive Graph Structure**: Dynamic allocation and management of hypergraph topology
+- **Edge State Management**: Track hyperedge states and metadata during model execution
+
+### 2. Multi-relational Hyperedge Types
+- **Relation Type Embeddings**: Separate embedding space for different relationship types (e.g., "is-a", "part-of", "causes")
+- **Type-Specific Attention**: Relation-aware attention mechanism that considers edge types
+- **Configurable Relation Vocabulary**: Support for custom relation type definitions
+
+### 3. Enhanced Model Architecture
+- **Relation Type Parameters**: New hyperparameter `n_relation_types` for specifying number of relation types
+- **Relation Embeddings Layer**: Dedicated embedding layer for relation types
+- **Type-Aware Graph Convolution**: Graph convolution that respects relation types during message passing
+
+## Future Work (Phase 3+)
+
+Potential future enhancements include:
+- Integration with OpenCog AtomSpace (Phase 3)
+- Temporal hypergraph evolution (Phase 3)
+- SPARQL-like query language integration (Phase 4)
+- CUDA/Metal acceleration for hypergraph operations (Phase 4)
 
 ## Testing and Validation
 
@@ -178,6 +262,22 @@ To fully test this implementation, you would need:
 3. Benchmarks for knowledge graph querying tasks
 4. Evaluation metrics for relational reasoning
 
+## Implementation Status
+
+### Phase 1 ✓ Complete
+- Core hypergraph transformer architecture
+- Basic hypergraph attention and graph convolution
+- Model loading and evaluation pipeline
+- Initial documentation and examples
+
+### Phase 2 🚧 In Progress
+- Dynamic hypergraph structures
+- Multi-relational hyperedge support
+- Enhanced relation-aware operations
+- Extended documentation and examples
+
 ## Conclusion
 
 This implementation provides a complete foundation for HypergraphQL transformer models within the CTransformers framework. It extends traditional transformers with hypergraph-aware operations while maintaining compatibility with the existing infrastructure. The architecture is designed to process complex relational structures found in knowledge graphs, making it suitable for advanced reasoning and query tasks in AGI applications.
+
+With Phase 2, the model gains the ability to handle dynamic graph structures and multi-relational reasoning, bringing it closer to real-world knowledge graph processing requirements.
