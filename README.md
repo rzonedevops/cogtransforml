@@ -29,6 +29,27 @@ Python bindings for the Transformer models implemented in C/C++ using [GGML](htt
 | Replit              | `replit`         |      |       |
 | HypergraphQL        | `hypergraphql`   |      |       |
 
+### 🌟 HypergraphQL - OpenCog Hypergraph Transformer
+
+**HypergraphQL** is a novel transformer architecture for processing and querying knowledge graphs represented as hypergraphs. It extends traditional transformers with hypergraph-aware attention mechanisms for advanced reasoning over complex relational structures.
+
+**Phase 2 Features (Current):**
+- ✅ Multi-relational support with 16 configurable relation types
+- ✅ Relation-aware attention and graph convolution
+- ✅ Typed relationships (is-a, part-of, causes, etc.)
+- ✅ Multi-hop reasoning over knowledge graphs
+
+**Documentation:** See [docs/HYPERGRAPHQL.md](docs/HYPERGRAPHQL.md) and [docs/PHASE2_MULTI_RELATIONAL.md](docs/PHASE2_MULTI_RELATIONAL.md)
+
+**Example:**
+```python
+llm = AutoModelForCausalLM.from_pretrained(
+    "path/to/hypergraphql-model.bin",
+    model_type="hypergraphql"
+)
+response = llm("Using 'is-a' relations: What is the relationship between neurons and the brain?")
+```
+
 ## Installation
 
 ```sh
