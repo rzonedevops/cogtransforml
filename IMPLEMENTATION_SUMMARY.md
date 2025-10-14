@@ -246,13 +246,182 @@ The evaluation function now:
 - **Relation Embeddings Layer**: Dedicated embedding layer for relation types
 - **Type-Aware Graph Convolution**: Graph convolution that respects relation types during message passing
 
-## Future Work (Phase 3+)
+## Phase 3 Implementation (Current)
+
+Building on Phase 1 and Phase 2, Phase 3 adds sophisticated AGI-oriented capabilities through OpenCog integration and advanced knowledge processing features.
+
+### Implementation Details
+
+#### 1. Extended Model Architecture
+
+**New Hyperparameters:**
+```cpp
+int32_t n_temporal_steps = 1000;      // number of temporal snapshots
+int32_t n_hierarchy_levels = 4;       // depth of relation hierarchy
+int32_t n_inference_dims = 768;       // dimensions for relation inference
+bool enable_atomspace = false;        // AtomSpace integration flag
+bool enable_temporal = false;         // temporal reasoning flag
+bool enable_dynamic = false;          // dynamic graph modification flag
+```
+
+**New Model Components:**
+```cpp
+// Temporal reasoning
+struct ggml_tensor *temporal_node_emb;      // time-stamped node states
+struct ggml_tensor *temporal_edge_emb;      // time-stamped edge states
+struct ggml_tensor *time_encoding;          // positional time encoding
+
+// Hierarchical relations
+struct ggml_tensor *hierarchy_emb;          // relation hierarchy embeddings
+
+// Relation inference
+struct ggml_tensor *inference_w;            // relation inference weights
+struct ggml_tensor *inference_b;            // relation inference bias
+
+// AtomSpace integration
+void *atomspace_handle;                     // AtomSpace connection handle
+std::map<int, AtomPtr> atom_cache;         // cached atoms
+
+// Dynamic graph state
+std::vector<DynamicNode> dynamic_nodes;     // runtime-added nodes
+std::vector<DynamicEdge> dynamic_edges;     // runtime-added edges
+std::map<int, float> edge_timestamps;       // edge creation times
+```
+
+**New Layer Components:**
+```cpp
+// Temporal processing
+struct ggml_tensor *temporal_attn_w;        // temporal attention weights
+struct ggml_tensor *temporal_attn_b;        // temporal attention bias
+struct ggml_tensor *temporal_conv_w;        // temporal convolution weights
+struct ggml_tensor *temporal_conv_b;        // temporal convolution bias
+
+// Hierarchical relations
+struct ggml_tensor *hierarchy_attn_w;       // hierarchical attention weights
+struct ggml_tensor *hierarchy_attn_b;       // hierarchical attention bias
+struct ggml_tensor *hierarchy_merge_w;      // hierarchy merge weights
+
+// Dynamic updates
+struct ggml_tensor *dynamic_update_w;       // dynamic update weights
+struct ggml_tensor *dynamic_update_b;       // dynamic update bias
+
+// Relation inference
+struct ggml_tensor *inference_context_w;    // context encoding weights
+struct ggml_tensor *inference_classifier_w; // relation classifier weights
+struct ggml_tensor *inference_classifier_b; // relation classifier bias
+```
+
+#### 2. New Operations
+
+**Temporal Attention:**
+```cpp
+ggml_tensor *temporal_attention(const hypergraphql_layer &layer,
+                               ggml_context *ctx0, 
+                               ggml_tensor *inp,
+                               ggml_tensor *time_emb,
+                               float current_time)
+```
+Combines spatial and temporal attention to reason over time-varying knowledge graphs.
+
+**Hierarchical Relation Embedding:**
+```cpp
+ggml_tensor *hierarchical_relation_embedding(ggml_context *ctx0,
+                                            int relation_id,
+                                            const RelationHierarchy &hierarchy,
+                                            struct ggml_tensor *base_embeddings)
+```
+Combines embeddings from relation and its ancestors in the hierarchy tree.
+
+**Relation Type Inference:**
+```cpp
+ggml_tensor *infer_relation_type(const hypergraphql_layer &layer,
+                                ggml_context *ctx0,
+                                ggml_tensor *context_emb,
+                                int n_relation_types)
+```
+Automatically infers relation types from textual context without explicit annotation.
+
+**Dynamic Graph Updates:**
+```cpp
+bool add_hyperedge(const std::vector<int> &node_ids,
+                  int relation_type,
+                  float confidence,
+                  float timestamp);
+bool remove_hyperedge(int edge_id);
+bool update_hyperedge(int edge_id, float new_confidence);
+```
+Modifies graph structure during inference for adaptive knowledge representation.
+
+**AtomSpace Bridge:**
+```cpp
+class AtomSpaceBridge {
+public:
+    bool connect(const std::string &uri);
+    std::vector<Atom> query(const std::string &pattern);
+    bool insert_atom(const Atom &atom);
+    bool update_atom(int atom_id, float truth_value, float confidence);
+    void sync();
+};
+```
+Provides bidirectional integration with OpenCog's AtomSpace knowledge base.
+
+#### 3. Integration in Evaluation Pipeline
+
+The evaluation function now:
+1. Optionally connects to AtomSpace for knowledge retrieval
+2. Encodes temporal context using sinusoidal time encoding
+3. Applies temporal attention alongside spatial and relational attention
+4. Uses hierarchical relation embeddings for parent-child relation types
+5. Dynamically updates graph structure based on runtime additions
+6. Infers missing relation types from textual context
+7. Optionally writes inferred knowledge back to AtomSpace
+8. Maintains full backward compatibility with Phase 1 and Phase 2 models
+
+### Key Enhancements
+
+#### 1. OpenCog AtomSpace Integration
+- **Direct connectivity**: Connect to AtomSpace via URI
+- **Pattern matching**: Query atoms using OpenCog patterns
+- **Bidirectional sync**: Read from and write to AtomSpace
+- **Atom caching**: Cache frequently accessed atoms for performance
+- **Truth value propagation**: Maintain OpenCog's truth value system
+
+#### 2. Temporal Hypergraph Evolution
+- **Time-stamped embeddings**: Track node and edge states over time
+- **Temporal attention**: Attend to relevant time periods
+- **Evolution tracking**: Monitor how relationships change over time
+- **Time decay**: Model knowledge decay with configurable decay constant
+- **Historical queries**: Query past states of the knowledge graph
+
+#### 3. Dynamic Graph Modification
+- **Runtime node addition**: Add new concepts during inference
+- **Runtime edge addition**: Create new relationships on-the-fly
+- **Edge removal**: Remove obsolete connections
+- **Confidence updates**: Modify edge confidence scores
+- **Graph compaction**: Efficiently manage deleted elements
+
+#### 4. Hierarchical Relation Types
+- **Multi-level hierarchy**: Support 4+ level relation type trees
+- **Inheritance**: Child relations inherit properties from parents
+- **Similarity computation**: Calculate relation type similarity
+- **Hierarchical reasoning**: Query relations by category
+- **Flexible organization**: Define custom hierarchies
+
+#### 5. Context-Based Relation Inference
+- **Automatic detection**: Infer relation types without explicit annotation
+- **Context encoding**: Combine source, target, and sentence context
+- **Confidence scores**: Provide inference confidence
+- **Alternative suggestions**: Return multiple possible relation types
+- **Multi-context analysis**: Extract multiple relationships from complex sentences
+
+## Future Work (Phase 4+)
 
 Potential future enhancements include:
-- Integration with OpenCog AtomSpace (Phase 3)
-- Temporal hypergraph evolution (Phase 3)
 - SPARQL-like query language integration (Phase 4)
 - CUDA/Metal acceleration for hypergraph operations (Phase 4)
+- Large-scale graph optimization (Phase 4)
+- Distributed inference support (Phase 4)
+- Production deployment tools (Phase 4)
 
 ## Testing and Validation
 
@@ -270,14 +439,25 @@ To fully test this implementation, you would need:
 - Model loading and evaluation pipeline
 - Initial documentation and examples
 
-### Phase 2 🚧 In Progress
+### Phase 2 ✓ Complete
 - Dynamic hypergraph structures
 - Multi-relational hyperedge support
 - Enhanced relation-aware operations
 - Extended documentation and examples
+
+### Phase 3 ✓ Complete
+- OpenCog AtomSpace integration
+- Temporal hypergraph evolution
+- Dynamic graph structure modification at runtime
+- Hierarchical relation types
+- Context-based relation inference
+- Bidirectional AtomSpace synchronization
+- Time-aware embeddings and attention
 
 ## Conclusion
 
 This implementation provides a complete foundation for HypergraphQL transformer models within the CTransformers framework. It extends traditional transformers with hypergraph-aware operations while maintaining compatibility with the existing infrastructure. The architecture is designed to process complex relational structures found in knowledge graphs, making it suitable for advanced reasoning and query tasks in AGI applications.
 
 With Phase 2, the model gains the ability to handle dynamic graph structures and multi-relational reasoning, bringing it closer to real-world knowledge graph processing requirements.
+
+With Phase 3, the model achieves sophisticated AGI-oriented capabilities through OpenCog AtomSpace integration, temporal reasoning, dynamic graph modification, hierarchical relation types, and intelligent relation inference. These features enable the model to work seamlessly with OpenCog's knowledge representation system and reason about time-varying, hierarchically-organized knowledge with minimal human annotation.
