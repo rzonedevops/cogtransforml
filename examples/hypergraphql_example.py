@@ -411,6 +411,297 @@ def example_combined_phase3():
     print()
 
 
+def example_hyperql_queries():
+    """Example: HyperQL query language (Phase 4)"""
+    print("=" * 60)
+    print("Example 11: HyperQL Query Language (Phase 4)")
+    print("=" * 60)
+    
+    try:
+        llm = AutoModelForCausalLM.from_pretrained(
+            "/path/to/hypergraphql-phase4-model.bin",
+            model_type="hypergraphql",
+            enable_hyperql=True
+        )
+        
+        # Simple HyperQL query
+        query1 = """
+        SELECT ?person ?age
+        WHERE {
+            ?person :isA :Researcher .
+            ?person :hasAge ?age .
+            FILTER(?age > 30)
+        }
+        ORDER BY DESC(?age)
+        LIMIT 10
+        """
+        
+        print("Query 1: Find researchers over 30")
+        results1 = llm.query_hyperql(query1)
+        print(f"Found {len(results1)} results:")
+        for r in results1[:3]:
+            print(f"  - {r['person']}: {r['age']} years old")
+        
+        # Complex query with aggregation
+        query2 = """
+        SELECT ?paper (COUNT(?author) as ?num_authors)
+        WHERE {
+            HYPEREDGE ?he {
+                :publication ?paper .
+                :author ?author .
+                :year ?year .
+                :citations ?citations
+            }
+            FILTER(?year >= 2020)
+        }
+        GROUP BY ?paper
+        HAVING COUNT(?author) >= 3
+        ORDER BY DESC(?citations)
+        LIMIT 5
+        """
+        
+        print("\nQuery 2: Top collaborative papers")
+        results2 = llm.query_hyperql(query2)
+        for r in results2:
+            print(f"  - {r['paper']}: {r['num_authors']} authors")
+        
+    except Exception as e:
+        print(f"Note: Requires Phase 4 model with HyperQL support")
+        print(f"Error: {e}")
+    
+    print()
+
+
+def example_gpu_acceleration():
+    """Example: GPU-accelerated inference (Phase 4)"""
+    print("=" * 60)
+    print("Example 12: GPU Acceleration (Phase 4)")
+    print("=" * 60)
+    
+    try:
+        # Enable CUDA acceleration
+        llm = AutoModelForCausalLM.from_pretrained(
+            "/path/to/hypergraphql-model.bin",
+            model_type="hypergraphql",
+            device="cuda",
+            cuda_config={
+                "device_id": 0,
+                "enable_graph_ops": True,
+                "enable_attention": True,
+                "use_flash_attention": True,
+                "precision": "fp16"
+            }
+        )
+        
+        # Batch inference on GPU
+        queries = [
+            "What is deep learning?",
+            "Explain neural networks",
+            "How does backpropagation work?",
+        ]
+        
+        print("Running batch inference on GPU...")
+        responses = llm.batch_inference(queries, max_new_tokens=150)
+        
+        for query, response in zip(queries, responses):
+            print(f"\nQ: {query}")
+            print(f"A: {response[:100]}...")
+        
+        # Check GPU stats
+        stats = llm.get_gpu_stats()
+        print(f"\nGPU Performance:")
+        print(f"  Utilization: {stats['utilization']}%")
+        print(f"  Memory Used: {stats['memory_used_gb']:.2f} GB")
+        print(f"  Throughput: {stats['tokens_per_second']:.1f} tok/s")
+        
+    except Exception as e:
+        print(f"Note: Requires Phase 4 model with GPU support and CUDA")
+        print(f"Error: {e}")
+    
+    print()
+
+
+def example_large_scale_graph():
+    """Example: Large-scale graph processing (Phase 4)"""
+    print("=" * 60)
+    print("Example 13: Large-Scale Graph Processing (Phase 4)")
+    print("=" * 60)
+    
+    try:
+        # Configure for large graph
+        llm = AutoModelForCausalLM.from_pretrained(
+            "/path/to/hypergraphql-model.bin",
+            model_type="hypergraphql",
+            graph_config={
+                "size": "xlarge",
+                "partitioning": {
+                    "strategy": "metis",
+                    "num_partitions": 16
+                },
+                "compression": {
+                    "nodes": "quantized",
+                    "edges": "pruned",
+                    "threshold": 0.01
+                },
+                "indexing": {
+                    "type": "hnsw",
+                    "ef_construction": 200
+                },
+                "processing_mode": "streaming",
+                "chunk_size": 50000
+            }
+        )
+        
+        print("Loading massive knowledge graph...")
+        llm.load_graph("/path/to/massive-graph.bin")
+        
+        # Query efficiently
+        query = """
+        SELECT ?entity ?type
+        WHERE {
+            ?entity :hasType ?type .
+        }
+        ORDER BY DESC(COUNT(?connections))
+        LIMIT 100
+        """
+        
+        print("Executing query on large graph...")
+        results = llm.query_hyperql(query, timeout=60)
+        print(f"Found {len(results)} highly connected entities")
+        
+        # Statistics
+        stats = llm.get_graph_stats()
+        print(f"\nGraph Statistics:")
+        print(f"  Nodes: {stats['num_nodes']:,}")
+        print(f"  Edges: {stats['num_edges']:,}")
+        print(f"  Partitions: {stats['num_partitions']}")
+        print(f"  Compression: {stats['compression_ratio']:.2f}x")
+        
+    except Exception as e:
+        print(f"Note: Requires Phase 4 model with large-scale optimization")
+        print(f"Error: {e}")
+    
+    print()
+
+
+def example_distributed_inference():
+    """Example: Distributed inference (Phase 4)"""
+    print("=" * 60)
+    print("Example 14: Distributed Inference (Phase 4)")
+    print("=" * 60)
+    
+    try:
+        from ctransformers import DistributedHypergraphQL
+        
+        # Set up distributed cluster
+        llm = DistributedHypergraphQL.from_pretrained(
+            "/path/to/hypergraphql-model.bin",
+            cluster_config={
+                "coordinator": "master-node:8000",
+                "workers": [
+                    {"address": "worker-1:8001", "gpus": [0, 1]},
+                    {"address": "worker-2:8002", "gpus": [0, 1]},
+                    {"address": "worker-3:8003", "gpus": [0, 1]},
+                ],
+                "distribution_strategy": "model_parallel",
+                "load_balancing": "dynamic"
+            }
+        )
+        
+        print(f"Distributed cluster initialized")
+        print(f"Total GPUs: {llm.get_total_gpus()}")
+        
+        # Complex distributed query
+        query = """
+        Analyze the evolution of AI research from 1950 to 2025.
+        Include major areas, key researchers, and citation patterns.
+        """
+        
+        print("\nExecuting distributed query...")
+        response = llm(
+            query,
+            max_new_tokens=500,
+            distributed=True,
+            aggregation_strategy="ensemble"
+        )
+        
+        print(f"Response: {response[:200]}...")
+        
+        # Cluster statistics
+        stats = llm.get_cluster_stats()
+        print(f"\nCluster Performance:")
+        print(f"  Throughput: {stats['total_throughput']:.1f} tok/s")
+        print(f"  Avg Latency: {stats['avg_latency_ms']:.1f} ms")
+        print(f"  Load Balance: {stats['load_balance_ratio']:.2f}")
+        
+    except Exception as e:
+        print(f"Note: Requires Phase 4 model with distributed support")
+        print(f"Error: {e}")
+    
+    print()
+
+
+def example_production_server():
+    """Example: Production server deployment (Phase 4)"""
+    print("=" * 60)
+    print("Example 15: Production Server (Phase 4)")
+    print("=" * 60)
+    
+    try:
+        from ctransformers.serving import HypergraphQLServer
+        from ctransformers.monitoring import MetricsCollector
+        
+        # Set up metrics
+        metrics = MetricsCollector(
+            backend="prometheus",
+            config={"port": 9090}
+        )
+        
+        # Create production server
+        server = HypergraphQLServer(
+            model_path="/path/to/hypergraphql-model.bin",
+            config={
+                "host": "0.0.0.0",
+                "port": 8080,
+                "workers": 8,
+                "max_batch_size": 32,
+                "enable_cors": True
+            }
+        )
+        
+        # Configure caching
+        server.configure_cache({
+            "levels": [
+                {"type": "memory", "size": "4GB", "ttl": 300},
+                {"type": "redis", "host": "redis:6379", "size": "20GB"}
+            ]
+        })
+        
+        # Health checks
+        server.configure_health_checks({
+            "endpoint": "/health",
+            "checks": ["model_loaded", "gpu_available"]
+        })
+        
+        # Attach metrics
+        server.attach_metrics(metrics)
+        
+        print("Production server configured:")
+        print("  - REST API: http://localhost:8080/v1/query")
+        print("  - HyperQL: http://localhost:8080/v1/hyperql")
+        print("  - Health: http://localhost:8080/health")
+        print("  - Metrics: http://localhost:9090/metrics")
+        
+        # Start server (commented out for example)
+        # server.start()
+        
+    except Exception as e:
+        print(f"Note: Requires Phase 4 model with production server")
+        print(f"Error: {e}")
+    
+    print()
+
+
 def main():
     """Run all examples"""
     print("\n" + "=" * 60)
@@ -435,6 +726,13 @@ def main():
     example_relation_inference()
     example_combined_phase3()
     
+    # Phase 4 examples
+    example_hyperql_queries()
+    example_gpu_acceleration()
+    example_large_scale_graph()
+    example_distributed_inference()
+    example_production_server()
+    
     print("=" * 60)
     print("Model Features:")
     print("=" * 60)
@@ -450,7 +748,7 @@ def main():
     print("✓ Relation-aware attention mechanism")
     print("✓ Relation-aware graph convolution")
     print("✓ Support for typed relationships (is-a, part-of, causes, etc.)")
-    print("\nPhase 3 (NEW):")
+    print("\nPhase 3:")
     print("✓ OpenCog AtomSpace integration")
     print("✓ Temporal hypergraph evolution")
     print("✓ Dynamic graph structure modification")
@@ -458,6 +756,12 @@ def main():
     print("✓ Context-based relation inference")
     print("✓ Bidirectional AtomSpace synchronization")
     print("✓ Time-aware embeddings and attention")
+    print("\nPhase 4 (IN PROGRESS):")
+    print("🚧 HyperQL query language (SPARQL-like)")
+    print("🚧 GPU acceleration with CUDA/Metal (3-5x speedup)")
+    print("🚧 Large-scale graph optimization (billion-edge graphs)")
+    print("🚧 Distributed inference (multi-node clusters)")
+    print("🚧 Production deployment tools and monitoring")
     print("=" * 60 + "\n")
 
 

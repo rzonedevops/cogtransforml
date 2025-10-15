@@ -798,13 +798,15 @@ Phase 3 transforms the HypergraphQL transformer from a static multi-relational m
 - ✅ **Smart Inference**: Automatic relation type detection from context
 - ✅ **Full Backward Compatibility**: Works with Phase 1 and Phase 2 models
 
-### Next Steps (Phase 4)
+### Next Steps (Phase 4) - 🚧 In Progress
 
-- SPARQL-like query language
-- CUDA/Metal acceleration
-- Large-scale graph optimization
-- Distributed inference
-- Production deployment tools
+- 🚧 SPARQL-like query language (HyperQL)
+- 🚧 CUDA/Metal acceleration
+- 🚧 Large-scale graph optimization
+- 🚧 Distributed inference
+- 🚧 Production deployment tools
+
+See [PHASE4_PERFORMANCE.md](PHASE4_PERFORMANCE.md) for detailed Phase 4 documentation.
 
 ---
 
@@ -814,3 +816,6 @@ Phase 3 transforms the HypergraphQL transformer from a static multi-relational m
 **Documentation**: This file + PHASE3_VISUAL_GUIDE.md  
 **Examples**: examples/hypergraphql_example.py  
 **Tests**: tests/test_hypergraphql.py
+
+**Phase 4 Status**: 🚧 In Progress  
+**Phase 4 Documentation**: [PHASE4_PERFORMANCE.md](PHASE4_PERFORMANCE.md)
